@@ -1,0 +1,37 @@
+{
+  "HALProvider": {
+    "Other Devices": {
+      "DutyCycleEncoder[1]": {
+        "header": {
+          "open": true
+        }
+      },
+      "DutyCycleEncoder[2]": {
+        "header": {
+          "open": true
+        }
+      },
+      "DutyCycleEncoder[3]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Field": "Field2d"
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "SmartDashboard": {
+        "open": true
+      }
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  }
+}
