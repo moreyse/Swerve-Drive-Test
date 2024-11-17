@@ -1,6 +1,11 @@
 {
   "HALProvider": {
     "Other Devices": {
+      "DutyCycleEncoder[0]": {
+        "header": {
+          "open": true
+        }
+      },
       "DutyCycleEncoder[1]": {
         "header": {
           "open": true

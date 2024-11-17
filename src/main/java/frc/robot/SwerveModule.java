@@ -18,12 +18,11 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 
 public class SwerveModule {
-  private static final double kWheelRadius = 0.0508;
-  private static final double kGearRatio = 10;  //actual 8.1
-  private static final int kEncoderResolution = 4096;
+  
+  
 
-  private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
-  private static final double kModuleMaxAngularAcceleration =  2 * Math.PI; // radians per second squared
+  private static final double kModuleMaxAngularVelocity = 20*Constants.kTurnMotorMaxAngSpeed;
+  private static final double kModuleMaxAngularAcceleration =  80*Constants.kTurnMotorMaxAngSpeed*2;
 
   public final CANSparkMax m_driveMotor;
   public final CANSparkMax m_turningMotor;
@@ -40,19 +39,19 @@ public class SwerveModule {
   public SwerveModuleState optState;
 
   // Gains are for example purposes only - must be determined for your own robot!
-  public final PIDController m_drivePIDController = new PIDController(3, 0, 0);  //.05, 0, 0
+  public final PIDController m_drivePIDController = new PIDController(2, 0, 0);  //.05, 0, 0
 
   // Gains are for example purposes only - must be determined for your own robot!         //1, 0, 0
   public final ProfiledPIDController m_turningPIDController =
       new ProfiledPIDController(
-          1,
+          4,
           0,
           0,
           new TrapezoidProfile.Constraints(
               kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
 
   // Gains are for example purposes only - must be determined for your own robot!
-  private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(0, 0);   //1, 3
+  private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 0);   //1, 3
   private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(0, 0);  //1, 0.5
 
   /**
@@ -80,8 +79,9 @@ public class SwerveModule {
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
     // resolution.  ***GET VELOCITY returns RPM in sparkmax***
-    m_driveEncoder.setPositionConversionFactor(2 * Math.PI * kWheelRadius / kEncoderResolution);
-    m_driveEncoder.setVelocityConversionFactor(2 * Math.PI * kWheelRadius / kEncoderResolution * kGearRatio);
+    // rpm -> m/s = rpm * m/rev * s / min
+    m_driveEncoder.setPositionConversionFactor(2 * Math.PI * Constants.kWheelRadius / Constants.kGearRatio);  //2 pi * .05 * 8.1 / 42 / 1.7 matches ok
+    m_driveEncoder.setVelocityConversionFactor(2 * Math.PI * Constants.kWheelRadius / Constants.kGearRatio / 60); // original 2pi * .0508 * 8.1 / 4096
 
     // Set the range of the turning encoder
     // Per REV docs, 1 - 1023 is the range of minimum & maximum (less 1us) pulses, 1025 is the output period

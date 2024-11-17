@@ -10,13 +10,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Represents a swerve drive style drivetrain. */
-public class Drivetrain   {
-  public static final double kMaxSpeed = 1; // meters per second
-  public static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second = Pi
+public class Drivetrain extends SubsystemBase {
+
 
   private final Translation2d m_frontLeftLocation = new Translation2d(0.381, 0.381);
   private final Translation2d m_frontRightLocation = new Translation2d(0.381, -0.381);
@@ -26,11 +27,11 @@ public class Drivetrain   {
   private final SwerveModule m_frontLeft = new SwerveModule(11, 10,  
                                                     0, .634);
   private final SwerveModule m_frontRight = new SwerveModule(15, 14, 
-                                                    2, .834); //.334
+                                                    2, .834); 
   private final SwerveModule m_backLeft = new SwerveModule(13, 12,  
                                                     1, .412);
   private final SwerveModule m_backRight = new SwerveModule(17, 16, 
-                                                    3, .336); //.836
+                                                    3, .336); 
 
 
   public final AnalogGyro m_gyro = new AnalogGyro(0);
@@ -76,7 +77,8 @@ public class Drivetrain   {
                         xSpeed, ySpeed, rot, m_gyro.getRotation2d())
                     : new ChassisSpeeds(xSpeed, ySpeed, rot),
                 periodSeconds));
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
+                
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.kMaxRobotSpeed);
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_backLeft.setDesiredState(swerveModuleStates[2]);
@@ -154,7 +156,38 @@ public class Drivetrain   {
         });
   }
 
+  public Pose2d getPose() {
+    return robotPose2d;
+  }
 
+  /**
+   * Sets the swerve ModuleStates.
+   *
+   * @param desiredStates The desired SwerveModule states.
+   */
+  public void setModuleStates(SwerveModuleState[] desiredStates) {
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.kMaxRobotSpeed);
+        m_frontLeft.setDesiredState(desiredStates[0]);
+        m_frontRight.setDesiredState(desiredStates[1]);
+        m_backLeft.setDesiredState(desiredStates[2]);
+        m_backRight.setDesiredState(desiredStates[3]);
+  }
 
+    /**
+   * Resets the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   */
+  public void resetOdometry(Pose2d pose) {
+    m_odometry.resetPosition(
+        m_gyro.getRotation2d(),
+        new SwerveModulePosition[] {
+          m_frontLeft.getPosition(),
+          m_frontRight.getPosition(),
+          m_backLeft.getPosition(),
+          m_backRight.getPosition()
+        },
+        pose);
+  }
 
 }
